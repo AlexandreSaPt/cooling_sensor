@@ -1,3 +1,8 @@
+/*
+    Código de um exemplo da documentação Arduino da biblioteca SD.h, com alterações para funcionar no teensy 4.1
+    Se tiver sucesso, espera-se que no monitor serial se consiga ler o que se escreveu no cartão SD
+*/
+
 #include <Arduino.h>
 
 #include <SPI.h>
@@ -5,100 +10,55 @@
 
 File data_file;
 
-//----------sensor pins--------------
-#define BOSCH1_A A9
-#define BOSCH1_B A8
-
-#define BOSCH2_A A7
-#define BOSCH2_B A6
-#define BOSCH2_C A5
-#define BOSCH2_D A4
-
-#define NUMBER_OF_SIGNALS 6
-
-String createCSV_string(int data[], int size);
-void send_toSD(String str);
-void errorLed();
-
 void setup() {
-  // put your setup code here, to run once:
-  pinMode(BOSCH1_A, INPUT);
-  pinMode(BOSCH1_B, INPUT);
+  // Open serial communications and wait for port to open:
+  Serial.begin(9600);
 
-  pinMode(BOSCH2_A, INPUT);
-  pinMode(BOSCH2_B, INPUT);
-  pinMode(BOSCH2_C, INPUT);
-  pinMode(BOSCH2_D, INPUT);
-
-  pinMode(LED_BUILTIN, OUTPUT); //for debugging purpose
-
-  analogReadResolution(12);
-
-
-  if (!SD.begin(BUILTIN_SDCARD)) {
-    //Initialization of SD card failed
-    while (1){
-      //starts blinking
-      errorLed();
-    }
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  //Send the data headers
-  send_toSD("Temp1;Temp2;Temp3;Temp4;Temp5;Temp6\n");
+  Serial.print("Initializing SD card...");
 
+  if (!SD.begin(BUILTIN_SDCARD)) {
+    Serial.println("initialization failed!");
+    while (1);
+  }
+  Serial.println("initialization done.");
+
+  // open the file. note that only one file can be open at a time,
+  // so you have to close this one before opening another.
+  data_file = SD.open("test.txt", FILE_WRITE);
+
+  // if the file opened okay, write to it:
+  if (data_file) {
+    Serial.print("Writing to test.txt...");
+    data_file.println("testing 1, 2, 3.");
+    // close the file:
+    data_file.close();
+    Serial.println("done.");
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening test.txt");
+  }
+
+  // re-open the file for reading:
+  data_file = SD.open("test.txt");
+  if (data_file) {
+    Serial.println("test.txt:");
+
+    // read from the file until there's nothing else in it:
+    while (data_file.available()) {
+      Serial.write(data_file.read());
+    }
+    // close the file:
+    data_file.close();
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening test.txt");
+  }
 }
 
 void loop() {
-  //read from sensors
-  int temp_value1_A = analogRead(BOSCH1_A);
-  int temp_value1_B = analogRead(BOSCH1_B);
-
-  int temp_value2_A = analogRead(BOSCH2_A);
-  int temp_value2_B = analogRead(BOSCH2_B);
-  int temp_value2_C = analogRead(BOSCH2_C);
-  int temp_value2_D = analogRead(BOSCH2_D);
-
-
-  int data_per_frame[] = {temp_value1_A, temp_value1_B, temp_value2_A, temp_value2_B, temp_value2_C, temp_value2_D};
-  String csv_line = createCSV_string(data_per_frame, NUMBER_OF_SIGNALS);
-
-  //send to sd card
-  send_toSD(csv_line);
+  // nothing happens after setup
 }
-
-
-String createCSV_string(int data[], int size){
-  //tested online
-  String str = "";
-  for(size_t i = 0; i < size - 1; i ++){
-    str += String(data[i]);
-    str += ";";
-  }
-  str += String(data[size - 1]);
-  str += "\n";
-  
-  return str;
-}
-
-
-void errorLed(){
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(100);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(100);
-}
-
-void send_toSD(String csv_line){
-  //I open and close the file everytime I write because im afraid that if something happens like cuting the power will result in lost data
-  data_file = SD.open("csv.txt");
-  if(!data_file){
-    while(1){
-      //starts blinking
-      errorLed();
-    }
-  }
-  data_file.print(csv_line);
-  data_file.close();
-}
-
-
