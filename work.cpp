@@ -16,6 +16,8 @@ File csv_file;
 /**
  * @brief BOSCH_x039
  * @note Temperature Sensor [can read from -5ºC to 140ºC]
+ * @param name
+ * @param pinNumber
  * @param resistor is 4.6k nominal (to be read experimentally)
  */
 struct BOSCH_x039{
@@ -28,6 +30,8 @@ struct BOSCH_x039{
 /**
  * @brief BOSCH_x412
  * @note Temperature Sensor [can read from -5ºC to 140ºC]
+ * @param name
+ * @param pinNumber
  * @param resistor is 4.6k nominal (to be read experimentally)
  */
 struct BOSCH_x412{
