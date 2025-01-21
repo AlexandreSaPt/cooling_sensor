@@ -9,40 +9,9 @@ File csv_file;
 #define ANALOG_READ_RESOLUTION 12
 #define VCC_board 5
 
+#define FILE_NAME "data.csv" //default "data.csv"
 
-/**
- * @brief Creates a CSV string
- * @param data is the array of data, in order
- * @param size is the size of the array
- * @return the CSV string
- */
-String createCSV_string(float data[], int size);
-
-/**
- * @brief Creates a CSV string
- * @param data is the array of string data, in order
- * @param size is the size of the array
- * @return the CSV string
- */
-String createCSV_string(String data[], int size);
-
-/**
- * @brief Sends the CSV string to the SD card
- * @param str is the CSV string
- */
-void send_toSD(String str);
-
-/**
- * @brief Blinks builtin LED in case of an error
- */
-void errorLed();
-
-
-void sendHeaders(String listHeaders[], int size);
-
-void getSensorsData(float listSensors[]);
-
-
+//-----------------STRUCT---------------
 
 /**
  * @brief BOSCH_x039
@@ -93,10 +62,63 @@ struct BOSCH_PnT{
     int Rread; //22k nominal
 };
 
-void getHeaders(String list[], int size);
+//-----------------FUNCTIONS---------------
+
+/**
+ * @brief Blinks builtin LED in case of an error
+ */
+void errorLed();
+
+//----RELATED TO SD CARD----
+
+/**
+ * @brief Creates a CSV string
+ * @param data is the array of data, in order
+ * @param size is the size of the array
+ * @return the CSV string
+ */
+String createCSV_string(float data[], int size);
+
+/**
+ * @brief Creates a CSV string
+ * @param data is the array of string data, in order
+ * @param size is the size of the array
+ * @return the CSV string
+ */
+String createCSV_string(String data[], int size);
+
+/**
+ * @brief Sends the CSV string to the SD card
+ * @param str is the CSV string
+ */
+void send_toSD(String str);
 
 
 
+/**
+ * @brief Sends the headers to the SD card
+ * @param listHeaders is the list of headers
+ * @param size is the size of the list
+ * @note the listHeaders must be in the same order as the data
+ */
+void sendHeaders(String listHeaders[], int size);
+
+
+/**
+ * @brief Gets the data from the sensors
+ * @param listSensors is the list of sensors data
+ */
+void getSensorsData(float listSensors[]);
+
+/**
+ * @brief Gets the headers from the sensors
+ * @param listHeaders is the list of headers
+ * @note the return of the func will be in the param
+ */
+void getHeaders(String listHeaders[]);
+
+
+//----RELATED TO SENSORS----
 /**
  * @brief Sets the pin mode of the sensor
 */ 
@@ -208,10 +230,10 @@ void setup(){
         error = true;
 
         if(DEBUG){        
-            Serial.println("initialization failed!");
+            Serial.println("initialization of the SD failed!");
         }
     }
-    if(DEBUG) Serial.println("initialization done.");
+    if(DEBUG) Serial.println("initialization of the SD done.");
 
     String listHeaders[BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH];
 
@@ -238,23 +260,23 @@ void loop(){
 
 void getHeaders(String listHeaders[]){
     int counter = 0;
-        for(int i = 0; i < BOSCH_x039_LENGTH; i++){
-            listHeaders[counter] = list_039[i].name;
-            counter++;
-        }
+    for(int i = 0; i < BOSCH_x039_LENGTH; i++){
+        listHeaders[counter] = list_039[i].name;
+        counter++;
+    }
 
-        for(int i = 0; i < BOSCH_x412_LENGTH; i++){
-            listHeaders[counter] = list_412[i].name;
-            counter++;
-        }
+    for(int i = 0; i < BOSCH_x412_LENGTH; i++){
+        listHeaders[counter] = list_412[i].name;
+        counter++;
+    }
 
-        for(int i = 0; i < BOSCH_PnT_LENGTH; i++){
-            listHeaders[counter] = list_PnT[i].nameTemp;
-            counter++;
+    for(int i = 0; i < BOSCH_PnT_LENGTH; i++){
+        listHeaders[counter] = list_PnT[i].nameTemp;
+        counter++;
 
-            listHeaders[counter] = list_PnT[i].namePressure;
-            counter++;
-        }
+        listHeaders[counter] = list_PnT[i].namePressure;
+        counter++;
+    }
 }
 
 
@@ -264,52 +286,50 @@ void sendHeaders(String listHeaders[], int size){
 }
 
 String createCSV_string(String data[], int size){
-  //tested online
-  String str = "";
-  for(size_t i = 0; i < size - 1; i ++){
+    //tested online
+    String str = "";
+    for(size_t i = 0; i < size - 1; i ++){
     str += String(data[i]);
     str += ";";
-  }
-  str += String(data[size - 1]);
-  str += "\n";
-  
-  return str;
+    }
+    str += String(data[size - 1]);
+    str += "\n";
+
+    return str;
 }
 
 String createCSV_string(float data[], int size){
-  //tested online
-  String str = "";
-  for(size_t i = 0; i < size - 1; i ++){
+    //tested online
+    String str = "";
+    for(size_t i = 0; i < size - 1; i ++){
     str += String(data[i]);
     str += ";";
-  }
-  str += String(data[size - 1]);
-  str += "\n";
-  
-  return str;
+    }
+    str += String(data[size - 1]);
+    str += "\n";
+
+    return str;
 }
 
 
 void errorLed(){
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(100);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(100);
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(100);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(100);
 }
 
 void send_toSD(String csv_line){
-  //I open and close the file everytime I write because im afraid that if something happens like cuting the power will result in lost data
-  csv_file = SD.open("csv.txt", FILE_WRITE);
-  if(!csv_file){
-    while(1){
-      //starts blinking
-      errorLed();
+    //I open and close the file everytime I write because im afraid that if something happens like cuting the power will result in lost data
+    csv_file = SD.open(FILE_NAME, FILE_WRITE);
+    if(!csv_file){
+        error = true;
+    }else{
+        csv_file.print(csv_line);
+        csv_file.close();
     }
-  }
-  csv_file.print(csv_line);
-  csv_file.close();
+  
 }
-
 
 
 
