@@ -1,48 +1,7 @@
 #include <Arduino.h>
-
-#include <SPI.h>
-#include <SD.h>
-
-File csv_file;
-
 #define DEBUG 1
 #define ANALOG_READ_RESOLUTION 12
 #define VCC_board 5
-
-
-/**
- * @brief Creates a CSV string
- * @param data is the array of data, in order
- * @param size is the size of the array
- * @return the CSV string
- */
-String createCSV_string(float data[], int size);
-
-/**
- * @brief Creates a CSV string
- * @param data is the array of string data, in order
- * @param size is the size of the array
- * @return the CSV string
- */
-String createCSV_string(String data[], int size);
-
-/**
- * @brief Sends the CSV string to the SD card
- * @param str is the CSV string
- */
-void send_toSD(String str);
-
-/**
- * @brief Blinks builtin LED in case of an error
- */
-void errorLed();
-
-
-void sendHeaders(String listHeaders[], int size);
-
-void getSensorsData(float listSensors[]);
-
-
 
 /**
  * @brief BOSCH_x039
@@ -92,10 +51,6 @@ struct BOSCH_PnT{
     int Raux; //10k nominal
     int Rread; //22k nominal
 };
-
-void getHeaders(String list[], int size);
-
-
 
 /**
  * @brief Sets the pin mode of the sensor
@@ -199,118 +154,57 @@ void setup(){
 
     if(DEBUG){
         Serial.begin(9600);
-        while (!Serial) {
-            ; // wait for serial port to connect. Needed for native USB port only
-        }
     }
-
-    if (!SD.begin(BUILTIN_SDCARD)) {
-        error = true;
-
-        if(DEBUG){        
-            Serial.println("initialization failed!");
-        }
-    }
-    if(DEBUG) Serial.println("initialization done.");
-
-    String listHeaders[BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH];
-
-    getHeaders(listHeaders);
-    sendHeaders(listHeaders, BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH);
 }
 
 void loop(){
-    float listSensors[BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH];
+    for(int i = 0; i < BOSCH_x039_LENGTH; i++){
+        float voltage = readVoltage(list_039[i].pinNumber); //volts
+        float R_NTC = calcNTC(voltage, list_039[i].resistor); //ohms
+        float temperature = calTemp(R_NTC); //ºC
 
-    getSensorsData(listSensors); //load listSensors with the data
+        if(DEBUG) continue;
+        Serial.print(list_039[i].name);
+        Serial.print(" - ");
+        Serial.print(temperature);
+        Serial.println(" C");
+    }
 
-    String csv_line = createCSV_string(listSensors, BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH);
+    for(int i = 0; i < BOSCH_x412_LENGTH; i++){
+        float voltage = readVoltage(list_412[i].pinNumber); //volts
+        float R_NTC = calcNTC(voltage, list_412[i].resistor); //ohms
+        float temperature = calTemp(R_NTC); //ºC
 
-    send_toSD(csv_line);
 
-    if(error){
-        while(1){
-            errorLed();
-        }
+        if(DEBUG) continue;
+        Serial.print(list_412[i].name);
+        Serial.print(" - ");
+        Serial.print(temperature);
+        Serial.println(" C");
+    }
+
+    for(int i = 0; i < BOSCH_PnT_LENGTH; i++){
+        float voltageTemp = readVoltage(list_PnT[i].pinTemp); //volts
+        float R_NTC = calcNTC(voltageTemp, list_PnT[i].tempResistor); //ohms
+        float temperature = calTemp(R_NTC); //ºC
+
+        float Vinit = readVoltage(list_PnT[i].pinPressure); //volts
+        float signalVoltage = calcSignalVoltage(Vinit, list_PnT[i].Raux, list_PnT[i].Rread); //volts
+        float pressure = calcPressure(signalVoltage); //kPa
+
+        if(DEBUG) continue;
+        Serial.print(list_PnT[i].nameTemp);
+        Serial.print(" - ");
+        Serial.print(temperature);
+        Serial.println(" C");
+
+        Serial.print(list_PnT[i].namePressure);
+        Serial.print(" - ");
+        Serial.print(pressure);
+        Serial.println(" Pa");
     }
 
 }
-
-void getHeaders(String listHeaders[]){
-    int counter = 0;
-        for(int i = 0; i < BOSCH_x039_LENGTH; i++){
-            listHeaders[counter] = list_039[i].name;
-            counter++;
-        }
-
-        for(int i = 0; i < BOSCH_x412_LENGTH; i++){
-            listHeaders[counter] = list_412[i].name;
-            counter++;
-        }
-
-        for(int i = 0; i < BOSCH_PnT_LENGTH; i++){
-            listHeaders[counter] = list_PnT[i].nameTemp;
-            counter++;
-
-            listHeaders[counter] = list_PnT[i].namePressure;
-            counter++;
-        }
-}
-
-
-void sendHeaders(String listHeaders[], int size){
-    String csv_line = createCSV_string(listHeaders, size);
-    send_toSD(csv_line);
-}
-
-String createCSV_string(String data[], int size){
-  //tested online
-  String str = "";
-  for(size_t i = 0; i < size - 1; i ++){
-    str += String(data[i]);
-    str += ";";
-  }
-  str += String(data[size - 1]);
-  str += "\n";
-  
-  return str;
-}
-
-String createCSV_string(float data[], int size){
-  //tested online
-  String str = "";
-  for(size_t i = 0; i < size - 1; i ++){
-    str += String(data[i]);
-    str += ";";
-  }
-  str += String(data[size - 1]);
-  str += "\n";
-  
-  return str;
-}
-
-
-void errorLed(){
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(100);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(100);
-}
-
-void send_toSD(String csv_line){
-  //I open and close the file everytime I write because im afraid that if something happens like cuting the power will result in lost data
-  csv_file = SD.open("csv.txt", FILE_WRITE);
-  if(!csv_file){
-    while(1){
-      //starts blinking
-      errorLed();
-    }
-  }
-  csv_file.print(csv_line);
-  csv_file.close();
-}
-
-
 
 
 
@@ -350,66 +244,4 @@ void initSensor(BOSCH_x039 sensor){
 }
 void initSensor(BOSCH_x412 sensor){
     pinMode(sensor.pinNumber, INPUT);
-}
-
-
-
-void getSensorsData(float listSensors[]){
-    int counter = 0;
-    for(int i = 0; i < BOSCH_x039_LENGTH; i++){
-        float voltage = readVoltage(list_039[i].pinNumber); //volts
-        float R_NTC = calcNTC(voltage, list_039[i].resistor); //ohms
-        float temperature = calTemp(R_NTC); //ºC
-
-        listSensors[counter] = temperature;
-        counter++;
-
-        if(DEBUG) continue;
-        Serial.print(list_039[i].name);
-        Serial.print(" - ");
-        Serial.print(temperature);
-        Serial.println(" C");
-    }
-
-    for(int i = 0; i < BOSCH_x412_LENGTH; i++){
-        float voltage = readVoltage(list_412[i].pinNumber); //volts
-        float R_NTC = calcNTC(voltage, list_412[i].resistor); //ohms
-        float temperature = calTemp(R_NTC); //ºC
-
-        listSensors[counter] = temperature;
-        counter++;
-
-        if(DEBUG) continue;
-        Serial.print(list_412[i].name);
-        Serial.print(" - ");
-        Serial.print(temperature);
-        Serial.println(" C");
-    }
-
-    for(int i = 0; i < BOSCH_PnT_LENGTH; i++){
-        float voltageTemp = readVoltage(list_PnT[i].pinTemp); //volts
-        float R_NTC = calcNTC(voltageTemp, list_PnT[i].tempResistor); //ohms
-        float temperature = calTemp(R_NTC); //ºC
-
-        listSensors[counter] = temperature;
-        counter++;
-
-        float Vinit = readVoltage(list_PnT[i].pinPressure); //volts
-        float signalVoltage = calcSignalVoltage(Vinit, list_PnT[i].Raux, list_PnT[i].Rread); //volts
-        float pressure = calcPressure(signalVoltage); //kPa
-
-        listSensors[counter] = pressure;
-        counter++;
-
-        if(DEBUG) continue;
-        Serial.print(list_PnT[i].nameTemp);
-        Serial.print(" - ");
-        Serial.print(temperature);
-        Serial.println(" C");
-
-        Serial.print(list_PnT[i].namePressure);
-        Serial.print(" - ");
-        Serial.print(pressure);
-        Serial.println(" Pa");
-    }
 }
