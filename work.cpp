@@ -1,18 +1,41 @@
 #include <Arduino.h>
 #define DEBUG 1
 
+/**
+ * @brief BOSCH_x039
+ * @note Temperature Sensor [can read from -5ºC to 140ºC]
+ * @param resistor is 4.6k nominal (to be read experimentally)
+ */
 struct BOSCH_x039{
     String name;
     int pinNumber;
     int resistor; //4.6k nominal
 };
 
+//Temperature Sensor [can read from -5ºC to 140ºC]
+
+/**
+ * @brief BOSCH_x412
+ * @note Temperature Sensor [can read from -5ºC to 140ºC]
+ * @param resistor is 4.6k nominal (to be read experimentally)
+ */
 struct BOSCH_x412{
     String name;
     int pinNumber;
     int resistor; //4.6k nominal
 };
 
+//Temperature Sensor [can read from -5ºC to 140ºC]
+//Pressure Sensor [can read from 10kPa to 300kPa]
+
+/**
+ * @brief BOSCH_PnT
+ * @note Temperature Sensor [can read from -5ºC to 140ºC]
+ * @param tempResistor is 8.2k nominal (to be read experimentally)
+ * @note Pressure Sensor [can read from 10kPa to 300kPa]
+ * @param Raux is 10k nominal (to be read experimentally)
+ * @param Rread is 22k nominal (to be read experimentally)
+ */
 struct BOSCH_PnT{
     String nameTemp;
     String namePressure;
@@ -20,10 +43,10 @@ struct BOSCH_PnT{
     int pinTemp;
     int pinPressure;
 
-    int tempResistor;
+    int tempResistor; //8.2k
 
-    int Raux;
-    int Rread;
+    int Raux; //10k nominal
+    int Rread; //22k nominal
 };
 
 void initSensor(BOSCH_PnT sensor);
