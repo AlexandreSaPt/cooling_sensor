@@ -27,9 +27,10 @@ float BOSCH_x039::calculateResistence(float voltage) {
 float BOSCH_x039::readTemperature() {
     float voltage = this->readVoltage();
     float resistance = this->calculateResistence(voltage);
-    //regressão exponencial T= log(B, (R/A))
+    //regressão logaritmica T= log(B, (R/A))
     const float A = 6636.53;
     const float B = 0.957796;
     float temperature = log(resistance / A) / log(B);
+    
     return temperature;
 }

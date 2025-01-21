@@ -9,7 +9,7 @@ private:
     /* data */
     int pinNumber;
     String name;
-    int resistor; //8200 ohms valor nominal
+    int resistor; //4600 ohms valor nominal
 
     float readVoltage();
     float calculateResistence(float voltage);
