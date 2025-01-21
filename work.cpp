@@ -1,5 +1,7 @@
 #include <Arduino.h>
 #define DEBUG 1
+#define ANALOG_READ_RESOLUTION 12
+#define VCC_board 5
 
 /**
  * @brief BOSCH_x039
@@ -132,6 +134,8 @@ const BOSCH_PnT BOSCH_PnT_6 = {"PnT_Temperature_6", "PnT_Pressure_6", A1, A9, 82
 const BOSCH_PnT list_PnT[6] = {BOSCH_PnT_1, BOSCH_PnT_2, BOSCH_PnT_3, BOSCH_PnT_4, BOSCH_PnT_5, BOSCH_PnT_6};
 
 
+bool error = false;
+
 void setup(){
     for (int i = 0; i < BOSCH_x039_LENGTH; i++)
     {
@@ -146,7 +150,7 @@ void setup(){
         initSensor(list_PnT[i]);
     }
 
-    analogReadResolution(12);
+    analogReadResolution(ANALOG_READ_RESOLUTION);
 
     if(DEBUG){
         Serial.begin(9600);
@@ -155,9 +159,9 @@ void setup(){
 
 void loop(){
     for(int i = 0; i < BOSCH_x039_LENGTH; i++){
-        float voltage = readVoltage(list_039[i].pinNumber);
-        float R_NTC = calcNTC(voltage, list_039[i].resistor);
-        float temperature = calTemp(R_NTC);
+        float voltage = readVoltage(list_039[i].pinNumber); //volts
+        float R_NTC = calcNTC(voltage, list_039[i].resistor); //ohms
+        float temperature = calTemp(R_NTC); //ºC
 
         if(DEBUG) continue;
         Serial.print(list_039[i].name);
@@ -167,9 +171,9 @@ void loop(){
     }
 
     for(int i = 0; i < BOSCH_x412_LENGTH; i++){
-        float voltage = readVoltage(list_412[i].pinNumber);
-        float R_NTC = calcNTC(voltage, list_412[i].resistor);
-        float temperature = calTemp(R_NTC);
+        float voltage = readVoltage(list_412[i].pinNumber); //volts
+        float R_NTC = calcNTC(voltage, list_412[i].resistor); //ohms
+        float temperature = calTemp(R_NTC); //ºC
 
 
         if(DEBUG) continue;
@@ -180,13 +184,13 @@ void loop(){
     }
 
     for(int i = 0; i < BOSCH_PnT_LENGTH; i++){
-        float voltageTemp = readVoltage(list_PnT[i].pinTemp);
-        float R_NTC = calcNTC(voltageTemp, list_PnT[i].tempResistor);
-        float temperature = calTemp(R_NTC);
+        float voltageTemp = readVoltage(list_PnT[i].pinTemp); //volts
+        float R_NTC = calcNTC(voltageTemp, list_PnT[i].tempResistor); //ohms
+        float temperature = calTemp(R_NTC); //ºC
 
-        float Vinit = readVoltage(list_PnT[i].pinPressure);
-        float signalVoltage = calcSignalVoltage(Vinit, list_PnT[i].Raux, list_PnT[i].Rread);
-        float pressure = calcPressure(signalVoltage);
+        float Vinit = readVoltage(list_PnT[i].pinPressure); //volts
+        float signalVoltage = calcSignalVoltage(Vinit, list_PnT[i].Raux, list_PnT[i].Rread); //volts
+        float pressure = calcPressure(signalVoltage); //kPa
 
         if(DEBUG) continue;
         Serial.print(list_PnT[i].nameTemp);
@@ -205,12 +209,11 @@ void loop(){
 
 
 float readVoltage(int pinNumber){
-    return analogRead(pinNumber);
+    return ((float) analogRead(pinNumber) * 3.3) / (2^ANALOG_READ_RESOLUTION);
 }
 
-float calcNTC(float voltage, int Rdivider){
-    const int VCC = 5;
-    return voltage * Rdivider / (VCC - voltage);
+float calcNTC(float voltage, int Rdivider){ 
+    return voltage * Rdivider / (VCC_board - voltage);
 }
 
 float calTemp(float NTCResistence){
