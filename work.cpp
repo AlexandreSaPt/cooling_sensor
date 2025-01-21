@@ -28,6 +28,10 @@ struct BOSCH_x412{
 /**
  * @brief BOSCH_PnT
  * @note Temperature Sensor [can read from -5ºC to 140ºC]
+ * @param nameTemp
+ * @param namePressure
+ * @param pinTemp
+ * @param pinPressure
  * @param tempResistor is 8.2k nominal (to be read experimentally)
  * @note Pressure Sensor [can read from 10kPa to 300kPa]
  * @param Raux is 10k nominal (to be read experimentally)
@@ -101,27 +105,29 @@ float calcSignalVoltage(float Vread, int Raux, int Rread);
  */
 float calcPressure(float signalVoltage);
 
+
+
 #define BOSCH_x039_LENGTH 4
-const BOSCH_x039 BOSCH_x039_1 = {"BOSCH_x039_1", A0, 4600};
-const BOSCH_x039 BOSCH_x039_2 = {"BOSCH_x039_2", A13, 4600};
-const BOSCH_x039 BOSCH_x039_3 = {"BOSCH_x039_3", 1, 4600};
-const BOSCH_x039 BOSCH_x039_4 = {"BOSCH_x039_4", 1, 4600};
+const BOSCH_x039 BOSCH_x039_1 = {"BOSCH_x039_1", A4, 4600};
+const BOSCH_x039 BOSCH_x039_2 = {"BOSCH_x039_2", A5, 4600};
+const BOSCH_x039 BOSCH_x039_3 = {"BOSCH_x039_3", A6, 4600};
+const BOSCH_x039 BOSCH_x039_4 = {"BOSCH_x039_4", A7, 4600};
 
 const BOSCH_x039 list_039[BOSCH_x039_LENGTH] = {BOSCH_x039_1, BOSCH_x039_2, BOSCH_x039_3, BOSCH_x039_4};
 
 #define BOSCH_x412_LENGTH 2
-const BOSCH_x412 BOSCH_x412_1 = {"BOSCH_x412_1", 1, 4600};
-const BOSCH_x412 BOSCH_x412_2 = {"BOSCH_x412_2", 1, 4600};
+const BOSCH_x412 BOSCH_x412_1 = {"BOSCH_x412_1", A2, 4600};
+const BOSCH_x412 BOSCH_x412_2 = {"BOSCH_x412_2", A3, 4600};
 
 const BOSCH_x412 list_412[2] = {BOSCH_x412_1, BOSCH_x412_2};
 
 #define BOSCH_PnT_LENGTH 6
-const BOSCH_PnT BOSCH_PnT_1 = {"PnT_Temperature_1", "PnT_Pressure_1", 1, 1, 8200, 10000, 22000};
-const BOSCH_PnT BOSCH_PnT_2 = {"PnT_Temperature_2", "PnT_Pressure_2", 1, 1, 8200, 10000, 22000};
-const BOSCH_PnT BOSCH_PnT_3 = {"PnT_Temperature_3", "PnT_Pressure_3", 1, 1, 8200, 10000, 22000};
-const BOSCH_PnT BOSCH_PnT_4 = {"PnT_Temperature_4", "PnT_Pressure_4", 1, 1, 8200, 10000, 22000};
-const BOSCH_PnT BOSCH_PnT_5 = {"PnT_Temperature_5", "PnT_Pressure_5", 1, 1, 8200, 10000, 22000};
-const BOSCH_PnT BOSCH_PnT_6 = {"PnT_Temperature_6", "PnT_Pressure_6", 1, 1, 8200, 10000, 22000};
+const BOSCH_PnT BOSCH_PnT_1 = {"PnT_Temperature_1", "PnT_Pressure_1", A14, A13, 8200, 10000, 22000};
+const BOSCH_PnT BOSCH_PnT_2 = {"PnT_Temperature_2", "PnT_Pressure_2", A15, A12, 8200, 10000, 22000};
+const BOSCH_PnT BOSCH_PnT_3 = {"PnT_Temperature_3", "PnT_Pressure_3", A16, A11, 8200, 10000, 22000};
+const BOSCH_PnT BOSCH_PnT_4 = {"PnT_Temperature_4", "PnT_Pressure_4", A17, A10, 8200, 10000, 22000};
+const BOSCH_PnT BOSCH_PnT_5 = {"PnT_Temperature_5", "PnT_Pressure_5", A0, A8, 8200, 10000, 22000};
+const BOSCH_PnT BOSCH_PnT_6 = {"PnT_Temperature_6", "PnT_Pressure_6", A1, A9, 8200, 10000, 22000};
 
 const BOSCH_PnT list_PnT[6] = {BOSCH_PnT_1, BOSCH_PnT_2, BOSCH_PnT_3, BOSCH_PnT_4, BOSCH_PnT_5, BOSCH_PnT_6};
 
@@ -183,7 +189,6 @@ void loop(){
         float pressure = calcPressure(signalVoltage);
 
         if(DEBUG) continue;
-        
         Serial.print(list_PnT[i].nameTemp);
         Serial.print(" - ");
         Serial.print(temperature);
