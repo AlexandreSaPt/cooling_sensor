@@ -12,7 +12,6 @@ struct BOSCH_x039{
     int resistor; //4.6k nominal
 };
 
-//Temperature Sensor [can read from -5ºC to 140ºC]
 
 /**
  * @brief BOSCH_x412
@@ -25,8 +24,6 @@ struct BOSCH_x412{
     int resistor; //4.6k nominal
 };
 
-//Temperature Sensor [can read from -5ºC to 140ºC]
-//Pressure Sensor [can read from 10kPa to 300kPa]
 
 /**
  * @brief BOSCH_PnT
@@ -49,17 +46,59 @@ struct BOSCH_PnT{
     int Rread; //22k nominal
 };
 
+/**
+ * @brief Sets the pin mode of the sensor
+*/ 
 void initSensor(BOSCH_PnT sensor);
+
+/**
+ * @brief Sets the pin mode of the sensor
+ */
 void initSensor(BOSCH_x039 sensor);
+
+/**
+ * @brief Sets the pin mode of the sensor
+ */
 void initSensor(BOSCH_x412 sensor);
 
-
+/**
+ * @brief Reads the voltage from the ADC
+ * @param pinNumber is the pin number of the port
+ * @return the voltage read
+ */
 float readVoltage(int pinNumber);
+
+/**
+ * @brief Calculates the NTC resistance
+ * @param voltage is the voltage read from the ADC
+ * @param Rdivider is the resistor value of the voltage divider
+ * @return the NTC resistance
+ */
 float calcNTC(float voltage, int Rdivider);
+
+/**
+ * @brief Calculates the temperature
+ * @param NTCResistence is the NTC resistance
+ * @return the temperature
+ * @note T= log(B, (R/A))
+ */
 float calTemp(float NTCResistence);
 
+/**
+ * @brief Calculates the signal voltage
+ * @param Vread is the voltage read from the ADC
+ * @param Raux is the auxiliary resistor
+ * @param Rread is the resistor in which was read the voltage
+ * @return the initial signal voltage
+ */
+float calcSignalVoltage(float Vread, int Raux, int Rread);
 
-float calcSignalVoltage(float Vread, int r1, int r2);
+/**
+ * @brief Calculates the pressure
+ * @param signalVoltage is the initial signal voltage
+ * @return the pressure
+ * @note y = mx + b, in the datasheet
+ */
 float calcPressure(float signalVoltage);
 
 #define BOSCH_x039_LENGTH 4
@@ -100,8 +139,12 @@ void setup(){
     {
         initSensor(list_PnT[i]);
     }
-    
+
     analogReadResolution(12);
+
+    if(DEBUG){
+        Serial.begin(9600);
+    }
 }
 
 void loop(){
@@ -110,6 +153,7 @@ void loop(){
         float R_NTC = calcNTC(voltage, list_039[i].resistor);
         float temperature = calTemp(R_NTC);
 
+        if(DEBUG) continue;
         Serial.print(list_039[i].name);
         Serial.print(" - ");
         Serial.print(temperature);
@@ -121,6 +165,8 @@ void loop(){
         float R_NTC = calcNTC(voltage, list_412[i].resistor);
         float temperature = calTemp(R_NTC);
 
+
+        if(DEBUG) continue;
         Serial.print(list_412[i].name);
         Serial.print(" - ");
         Serial.print(temperature);
@@ -136,6 +182,8 @@ void loop(){
         float signalVoltage = calcSignalVoltage(Vinit, list_PnT[i].Raux, list_PnT[i].Rread);
         float pressure = calcPressure(signalVoltage);
 
+        if(DEBUG) continue;
+        
         Serial.print(list_PnT[i].nameTemp);
         Serial.print(" - ");
         Serial.print(temperature);
