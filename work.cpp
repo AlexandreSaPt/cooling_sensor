@@ -138,7 +138,7 @@ float calcNTC(float voltage, int Rdivider);
  * @return the temperature
  * @note T= log(B, (R/A))
  */
-float calTemp(float NTCResistence);
+float calcTemp(float NTCResistence);
 
 /**
  * @brief Calculates the signal voltage
@@ -201,6 +201,7 @@ void setup(){
         pinMode(list_PnT[i].pinPressure, INPUT);
     }
     pinMode(LED_BUILTIN, HIGH); //for the error led
+    
     analogReadResolution(ANALOG_READ_RESOLUTION);
 
     if(DEBUG){
@@ -326,7 +327,7 @@ float calcNTC(float voltage, int Rdivider){
     return voltage * Rdivider / (VCC_board - voltage);
 }
 
-float calTemp(float NTCResistence){
+float calcTemp(float NTCResistence){
     //regressão logaritmica T= log(B, (R/A))
     const float A = 6636.53;
     const float B = 0.957796;
@@ -350,7 +351,7 @@ void getSensorsData(float listSensors[]){
     for(int i = 0; i < BOSCH_x039_LENGTH; i++){
         float voltage = readVoltage(list_039[i].pinNumber); //volts
         float R_NTC = calcNTC(voltage, list_039[i].resistor); //ohms
-        float temperature = calTemp(R_NTC); //ºC
+        float temperature = calcTemp(R_NTC); //ºC
 
         listSensors[counter] = temperature;
         counter++;
@@ -365,7 +366,7 @@ void getSensorsData(float listSensors[]){
     for(int i = 0; i < BOSCH_x412_LENGTH; i++){
         float voltage = readVoltage(list_412[i].pinNumber); //volts
         float R_NTC = calcNTC(voltage, list_412[i].resistor); //ohms
-        float temperature = calTemp(R_NTC); //ºC
+        float temperature = calcTemp(R_NTC); //ºC
 
         listSensors[counter] = temperature;
         counter++;
@@ -380,7 +381,7 @@ void getSensorsData(float listSensors[]){
     for(int i = 0; i < BOSCH_PnT_LENGTH; i++){
         float voltageTemp = readVoltage(list_PnT[i].pinTemp); //volts
         float R_NTC = calcNTC(voltageTemp, list_PnT[i].tempResistor); //ohms
-        float temperature = calTemp(R_NTC); //ºC
+        float temperature = calcTemp(R_NTC); //ºC
 
         listSensors[counter] = temperature;
         counter++;

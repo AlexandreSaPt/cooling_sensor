@@ -88,7 +88,7 @@ float calcNTC(float voltage, int Rdivider);
  * @return the temperature
  * @note T= log(B, (R/A))
  */
-float calTemp(float NTCResistence);
+float calcTemp(float NTCResistence);
 
 /**
  * @brief Calculates the signal voltage
@@ -161,7 +161,7 @@ void loop(){
     for(int i = 0; i < BOSCH_x039_LENGTH; i++){
         float voltage = readVoltage(list_039[i].pinNumber); //volts
         float R_NTC = calcNTC(voltage, list_039[i].resistor); //ohms
-        float temperature = calTemp(R_NTC); //ºC
+        float temperature = calcTemp(R_NTC); //ºC
 
         if(DEBUG) continue;
         Serial.print(list_039[i].name);
@@ -173,7 +173,7 @@ void loop(){
     for(int i = 0; i < BOSCH_x412_LENGTH; i++){
         float voltage = readVoltage(list_412[i].pinNumber); //volts
         float R_NTC = calcNTC(voltage, list_412[i].resistor); //ohms
-        float temperature = calTemp(R_NTC); //ºC
+        float temperature = calcTemp(R_NTC); //ºC
 
 
         if(DEBUG) continue;
@@ -186,7 +186,7 @@ void loop(){
     for(int i = 0; i < BOSCH_PnT_LENGTH; i++){
         float voltageTemp = readVoltage(list_PnT[i].pinTemp); //volts
         float R_NTC = calcNTC(voltageTemp, list_PnT[i].tempResistor); //ohms
-        float temperature = calTemp(R_NTC); //ºC
+        float temperature = calcTemp(R_NTC); //ºC
 
         float Vinit = readVoltage(list_PnT[i].pinPressure); //volts
         float signalVoltage = calcSignalVoltage(Vinit, list_PnT[i].Raux, list_PnT[i].Rread); //volts
@@ -216,7 +216,7 @@ float calcNTC(float voltage, int Rdivider){
     return voltage * Rdivider / (VCC_board - voltage);
 }
 
-float calTemp(float NTCResistence){
+float calcTemp(float NTCResistence){
     //regressão logaritmica T= log(B, (R/A))
     const float A = 6636.53;
     const float B = 0.957796;
