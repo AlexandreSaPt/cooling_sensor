@@ -26,7 +26,6 @@ struct BOSCH_x039{
     int resistor; //4.6k nominal
 };
 
-
 /**
  * @brief BOSCH_x412
  * @note Temperature Sensor [can read from -5ºC to 140ºC]
@@ -39,7 +38,6 @@ struct BOSCH_x412{
     int pinNumber;
     int resistor; //4.6k nominal
 };
-
 
 /**
  * @brief BOSCH_PnT
@@ -74,7 +72,6 @@ struct BOSCH_PnT{
 void errorLed();
 
 //----RELATED TO SD CARD----
-
 /**
  * @brief Creates a CSV string
  * @param data is the array of data, in order
@@ -97,8 +94,6 @@ String createCSV_string(String data[], int size);
  */
 void send_toSD(String str);
 
-
-
 /**
  * @brief Sends the headers to the SD card
  * @param listHeaders is the list of headers
@@ -106,7 +101,6 @@ void send_toSD(String str);
  * @note the listHeaders must be in the same order as the data
  */
 void sendHeaders(String listHeaders[], int size);
-
 
 /**
  * @brief Gets the data from the sensors
@@ -123,21 +117,6 @@ void getHeaders(String listHeaders[]);
 
 
 //----RELATED TO SENSORS----
-/**
- * @brief Sets the pin mode of the sensor
-*/ 
-void initSensor(BOSCH_PnT sensor);
-
-/**
- * @brief Sets the pin mode of the sensor
- */
-void initSensor(BOSCH_x039 sensor);
-
-/**
- * @brief Sets the pin mode of the sensor
- */
-void initSensor(BOSCH_x412 sensor);
-
 /**
  * @brief Reads the voltage from the ADC
  * @param pinNumber is the pin number of the port
@@ -210,17 +189,18 @@ bool error = false;
 void setup(){
     for (int i = 0; i < BOSCH_x039_LENGTH; i++)
     {
-        initSensor(list_039[i]);
+        pinMode(list_039[i].pinNumber, INPUT);
     }
     for (int i = 0; i < BOSCH_x412_LENGTH; i++)
     {
-        initSensor(list_412[i]);
+        pinMode(list_412[i].pinNumber, INPUT);
     }
     for (int i = 0; i < BOSCH_PnT_LENGTH; i++)
     {
-        initSensor(list_PnT[i]);
+        pinMode(list_PnT[i].pinTemp, INPUT);
+        pinMode(list_PnT[i].pinPressure, INPUT);
     }
-
+    pinMode(LED_BUILTIN, HIGH); //for the error led
     analogReadResolution(ANALOG_READ_RESOLUTION);
 
     if(DEBUG){
@@ -364,19 +344,6 @@ float calcPressure(float signalVoltage){
 
     return m * signalVoltage + b;
 }
-
-void initSensor(BOSCH_PnT sensor){
-    pinMode(sensor.pinTemp, INPUT);
-    pinMode(sensor.pinPressure, INPUT);
-}
-void initSensor(BOSCH_x039 sensor){
-    pinMode(sensor.pinNumber, INPUT);
-}
-void initSensor(BOSCH_x412 sensor){
-    pinMode(sensor.pinNumber, INPUT);
-}
-
-
 
 void getSensorsData(float listSensors[]){
     int counter = 0;
