@@ -20,7 +20,7 @@ File csv_file;
  * @param pinNumber
  * @param resistor is 4.6k nominal (to be read experimentally)
  */
-struct BOSCH_x039{
+typedef struct BOSCH_x039{
     String name;
     int pinNumber;
     int resistor; //4.6k nominal
@@ -33,7 +33,7 @@ struct BOSCH_x039{
  * @param pinNumber
  * @param resistor is 4.6k nominal (to be read experimentally)
  */
-struct BOSCH_x412{
+typedef struct BOSCH_x412{
     String name;
     int pinNumber;
     int resistor; //4.6k nominal
@@ -51,7 +51,7 @@ struct BOSCH_x412{
  * @param Raux is 10k nominal (to be read experimentally)
  * @param Rread is 22k nominal (to be read experimentally)
  */
-struct BOSCH_PnT{
+typedef struct BOSCH_PnT{
     String nameTemp;
     String namePressure;
 
