@@ -171,7 +171,7 @@ const BOSCH_x039 list_039[BOSCH_x039_LENGTH] = {BOSCH_x039_1, BOSCH_x039_2, BOSC
 const BOSCH_x412 BOSCH_x412_1 = {"BOSCH_x412_1", A2, 4600};
 const BOSCH_x412 BOSCH_x412_2 = {"BOSCH_x412_2", A3, 4600};
 
-const BOSCH_x412 list_412[2] = {BOSCH_x412_1, BOSCH_x412_2};
+const BOSCH_x412 list_412[BOSCH_x412_LENGTH] = {BOSCH_x412_1, BOSCH_x412_2};
 
 #define BOSCH_PnT_LENGTH 6
 const BOSCH_PnT BOSCH_PnT_1 = {"PnT_Temperature_1", "PnT_Pressure_1", A14, A13, 8200, 10000, 22000};
@@ -181,7 +181,7 @@ const BOSCH_PnT BOSCH_PnT_4 = {"PnT_Temperature_4", "PnT_Pressure_4", A17, A10, 
 const BOSCH_PnT BOSCH_PnT_5 = {"PnT_Temperature_5", "PnT_Pressure_5", A0, A8, 8200, 10000, 22000};
 const BOSCH_PnT BOSCH_PnT_6 = {"PnT_Temperature_6", "PnT_Pressure_6", A1, A9, 8200, 10000, 22000};
 
-const BOSCH_PnT list_PnT[6] = {BOSCH_PnT_1, BOSCH_PnT_2, BOSCH_PnT_3, BOSCH_PnT_4, BOSCH_PnT_5, BOSCH_PnT_6};
+const BOSCH_PnT list_PnT[BOSCH_PnT_LENGTH] = {BOSCH_PnT_1, BOSCH_PnT_2, BOSCH_PnT_3, BOSCH_PnT_4, BOSCH_PnT_5, BOSCH_PnT_6};
 
 
 bool error = false;
@@ -222,12 +222,10 @@ void setup(){
     }
 
     String listHeaders[BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH * 2];
-    Serial.println("1");
+
     getHeaders(listHeaders);
-    Serial.println("2");
 
     sendHeaders(listHeaders, BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH * 2);
-    Serial.println("3");
 }
 
 void loop(){
