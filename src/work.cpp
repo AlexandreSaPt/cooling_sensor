@@ -288,12 +288,12 @@ String createCSV_string(String data[], int size){
 String createCSV_string(float data[], int size){
     //tested online
     String str = "";
-    for(int i = 0; i < size - 1; i ++){
-    str += String(data[i]);
-    str += ";";
+    for(int i = 0; i < size ; i ++){
+        String s_aux = data[i] == INFINITY ? "INFINITY" : String(data[i]);
+
+        str += s_aux;
+        str += i == size - 1 ? "\n" : ";";
     }
-    str += String(data[size - 1]);
-    str += "\n";
 
     return str;
 }
