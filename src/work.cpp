@@ -201,6 +201,7 @@ void setup(){
         pinMode(list_PnT[i].pinPressure, INPUT);
     }
     pinMode(LED_BUILTIN, HIGH); //for the error led
+    digitalWrite(LED_BUILTIN, LOW);
     
     analogReadResolution(ANALOG_READ_RESOLUTION);
 
@@ -210,6 +211,13 @@ void setup(){
             ; // wait for serial port to connect. Needed for native USB port only
         }
     }
+
+    digitalWrite(LED_BUILTIN, HIGH); //if high, means everything is ok;
+    //it is purpusely below the serial.begin because if DEBUG is on, but the teensy is not connected to
+    //the computer, it will enter the loop above, trying to connect to the serial port
+    //which is not possible.
+    //So, if it gets stuck connecting, the led will be off, indicating that there is an error
+
 
     if (!SD.begin(BUILTIN_SDCARD)) {
         error = true;
@@ -276,8 +284,8 @@ String createCSV_string(String data[], int size){
     //tested online
     String str = "";
     for(int i = 0; i < size - 1; i ++){
-    str += String(data[i]);
-    str += ";";
+        str += String(data[i]);
+        str += ";";
     }
     str += String(data[size - 1]);
     str += "\n";
@@ -289,10 +297,12 @@ String createCSV_string(float data[], int size){
     //tested online
     String str = "";
     for(int i = 0; i < size - 1; i ++){
-        str += String(data[i]);
+        String aux = String(data[i]);
+        str += aux != "" ? aux : "NC";
         str += ";";
     }
-    str += String(data[size - 1]);
+    String aux = String(data[size - 1]);
+    str += aux != "" ? aux : "NC";
     str += "\n";
 
     return str;
