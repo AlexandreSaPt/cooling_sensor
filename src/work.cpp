@@ -232,6 +232,12 @@ void setup(){
     String listHeaders[BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH * 2];
 
     getHeaders(listHeaders);
+    if(DEBUG){
+        for(int i = 0; i < BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH * 2; i++){
+            Serial.print(listHeaders[i]);
+            Serial.print("\t");
+        }
+    }
 
     sendHeaders(listHeaders, BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH * 2);
 }
@@ -240,6 +246,14 @@ void loop(){
     float listSensors[BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH * 2];
 
     getSensorsData(listSensors); //load listSensors with the data
+
+    if(DEBUG){
+        for(int i = 0; i < BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH * 2; i++){
+            //note that when not connected, the value printed will not be the same as the one in the csv
+            Serial.print(listSensors[i]);
+            Serial.print("\t");
+        }
+    }
 
     String csv_line = createCSV_string(listSensors, BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH * 2);
 
@@ -250,7 +264,6 @@ void loop(){
             errorLed();
         }
     }
-
 }
 
 void getHeaders(String listHeaders[]){
@@ -367,12 +380,13 @@ void getSensorsData(float listSensors[]){
 
         listSensors[counter] = temperature;
         counter++;
-
+        /*
         if(DEBUG) continue;
         Serial.print(list_039[i].name);
         Serial.print(" - ");
         Serial.print(temperature);
         Serial.println(" C");
+        */
     }
 
     for(int i = 0; i < BOSCH_x412_LENGTH; i++){
@@ -382,12 +396,13 @@ void getSensorsData(float listSensors[]){
 
         listSensors[counter] = temperature;
         counter++;
-
+        /*
         if(DEBUG) continue;
         Serial.print(list_412[i].name);
         Serial.print(" - ");
         Serial.print(temperature);
         Serial.println(" C");
+        */
     }
 
     for(int i = 0; i < BOSCH_PnT_LENGTH; i++){
@@ -404,7 +419,7 @@ void getSensorsData(float listSensors[]){
 
         listSensors[counter] = pressure;
         counter++;
-
+        /*
         if(DEBUG) continue;
         Serial.print(list_PnT[i].nameTemp);
         Serial.print(" - ");
@@ -415,5 +430,6 @@ void getSensorsData(float listSensors[]){
         Serial.print(" - ");
         Serial.print(pressure);
         Serial.println(" Pa");
+        */
     }
 }
