@@ -201,7 +201,7 @@ void setup(){
         pinMode(list_PnT[i].pinPressure, INPUT);
     }
     pinMode(LED_BUILTIN, HIGH); //for the error led
-    digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(LED_BUILTIN, LOW); //it will be high after the serial begin, if thats the case
     
     analogReadResolution(ANALOG_READ_RESOLUTION);
 
@@ -213,7 +213,7 @@ void setup(){
     }
 
     digitalWrite(LED_BUILTIN, HIGH); //if high, means everything is ok;
-    //it is purpusely below the serial.begin because if DEBUG is on, but the teensy is not connected to
+    //it is purposely below the serial.begin because if DEBUG is on, but the teensy is not connected to
     //the computer, it will enter the loop above, trying to connect to the serial port
     //which is not possible.
     //So, if it gets stuck connecting, the led will be off, indicating that there is an error
@@ -232,6 +232,7 @@ void setup(){
     String listHeaders[BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH * 2];
 
     getHeaders(listHeaders);
+    
     if(DEBUG){
         for(int i = 0; i < BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH * 2; i++){
             Serial.print(listHeaders[i]);
