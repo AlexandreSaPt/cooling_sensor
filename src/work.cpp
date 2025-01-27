@@ -9,6 +9,8 @@ File csv_file;
 #define ANALOG_READ_RESOLUTION 12
 #define VCC_board 5
 
+#define MILI_TIME_PERIOD 100 //default 100ms
+
 #define FILE_NAME "data.csv" //default "data.csv"
 
 //-----------------STRUCT---------------
@@ -266,6 +268,7 @@ void loop(){
             errorLed();
         }
     }
+    delay(MILI_TIME_PERIOD);
 }
 
 void getHeaders(String listHeaders[]){
