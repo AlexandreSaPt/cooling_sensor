@@ -159,19 +159,20 @@ float calcPressure(float signalVoltage);
 
 
 
-#define BOSCH_x039_LENGTH 4
-const BOSCH_x039 BOSCH_x039_1 = {"BOSCH_x039_1", A4, 4600};
-const BOSCH_x039 BOSCH_x039_2 = {"BOSCH_x039_2", A5, 4600};
-const BOSCH_x039 BOSCH_x039_3 = {"BOSCH_x039_3", A6, 4600};
-const BOSCH_x039 BOSCH_x039_4 = {"BOSCH_x039_4", A7, 4600};
+#define BOSCH_x039_LENGTH 2
 
-const BOSCH_x039 list_039[BOSCH_x039_LENGTH] = {BOSCH_x039_1, BOSCH_x039_2, BOSCH_x039_3, BOSCH_x039_4};
+const BOSCH_x039 BOSCH_x039_1 = {"BOSCH_x039_1", A6, 4600};
+const BOSCH_x039 BOSCH_x039_2 = {"BOSCH_x039_2", A7, 4600};
 
-#define BOSCH_x412_LENGTH 2
+const BOSCH_x039 list_039[BOSCH_x039_LENGTH] = {BOSCH_x039_1, BOSCH_x039_2};
+
+#define BOSCH_x412_LENGTH 4
 const BOSCH_x412 BOSCH_x412_1 = {"BOSCH_x412_1", A2, 4600};
 const BOSCH_x412 BOSCH_x412_2 = {"BOSCH_x412_2", A3, 4600};
+const BOSCH_x412 BOSCH_x412_3 = {"BOSCH_x412_3", A4, 4600};
+const BOSCH_x412 BOSCH_x412_4 = {"BOSCH_x412_4", A5, 4600};
 
-const BOSCH_x412 list_412[BOSCH_x412_LENGTH] = {BOSCH_x412_1, BOSCH_x412_2};
+const BOSCH_x412 list_412[BOSCH_x412_LENGTH] = {BOSCH_x412_1, BOSCH_x412_2, BOSCH_x412_3, BOSCH_x412_4};
 
 #define BOSCH_PnT_LENGTH 6
 const BOSCH_PnT BOSCH_PnT_1 = {"PnT_Temperature_1", "PnT_Pressure_1", A14, A13, 8200, 10000, 22000};
@@ -232,7 +233,7 @@ void setup(){
     String listHeaders[BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH * 2];
 
     getHeaders(listHeaders);
-    
+
     if(DEBUG){
         for(int i = 0; i < BOSCH_x039_LENGTH + BOSCH_x412_LENGTH + BOSCH_PnT_LENGTH * 2; i++){
             Serial.print(listHeaders[i]);
